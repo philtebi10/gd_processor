@@ -46,6 +46,8 @@ Rapidapi.com account, will be needed to access highlight images and videos.
 
 For this example we will be using NCAA (USA College Basketball) highlights since it's included for free in the basic plan.
 
+[Sports Highlights API](https://rapidapi.com/highlightly-api-highlightly-api-default/api/sport-highlights-api/playground/apiendpoint_16dd5813-39c6-43f0-aebe-11f891fe5149) is the endpoint we will be using 
+
 # 2 Verify prerequites are installed 
 
 Docker should be pre-installed in most regions docker --version
@@ -64,9 +66,46 @@ Under Users, click on a user and then "Security Credentials"
 Scroll down until you see the Access Key section
 You will not be able to retrieve your secret access key so if you don't have that somewhere, you need to create an access key.
 
+## **Project Structure**
+```bash
+src/
+├── Dockerfile
+├── config.py
+├── fetch.py
+├── mediaconvert_process.py
+├── process_one_video.py
+├── requirements.txt
+├── run_all.py
+├── .env
+├── .gitignore
+└── terraform/
+    ├── main.tf
+    ├── variables.tf
+    ├── secrets.tf
+    ├── iam.tf
+    ├── ecr.tf
+    ├── ecs.tf
+    ├── s3.tf
+    ├── container_definitions.tpl
+    └── outputs.tf
+```
 
-# START HERE 
-# Step 1: Create an IAM role or user
+# START HERE - Local
+## **Step 1: Clone The Repo**
+```bash
+git clone https://github.com/alahl1/NCAAGameHighlights.git
+cd src
+```
+## **Step 2: Add API Key to AWS Secrets Manager**
+```bash
+aws secretsmanager create-secret \
+    --name my-api-key \
+    --description "API key for accessing the Sport Highlights API" \
+    --secret-string '{"api_key":"YOUR_ACTUAL_API_KEY"}' \
+    --region us-east-1
+```
+
+## **Step 3: Create an IAM role or user**
 
 In the search bar type "IAM" 
 
@@ -84,7 +123,7 @@ Find the role in the list and click on it
 Under Trust relationships
 Edit the trust policy to this:
 Edit the Trust Policy and replace it with this:
-
+```bash
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -102,74 +141,50 @@ Edit the Trust Policy and replace it with this:
     }
   ]
 }
+```
 
-# Step 2: Create S3 Bucket
-Navigate to the AWS Cloudshell console
-Run this bash script to create an S3 Bucket, be sure to replace "<your-bucket-name>" and "<region>"
+## **Step 4: Update .env file**
+1. RapidAPI_KEY: Ensure that you have successfully created the account and select "Subscribe To Test" in the top left of the Sports Highlights API
+2. AWS_ACCESS_KEY_ID=your_aws_access_key_id_here
+3. AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key_here
+4. S3_BUCKET_NAME=your_S3_bucket_name_here
+5. MEDIACONVERT_ENDPOINT=https://your_mediaconvert_endpoint_here.amazonaws.com
+```bash
+aws mediaconvert describe-endpoints
+```
+7. MEDIACONVERT_ROLE_ARN=arn:aws:iam::your_account_id:role/HighlightProcessorRole
 
-"aws s3api create-bucket --bucket <"your-bucket-name"> --region <"region">"
-
-Verify the bucket exists
-aws s3 ls
-
-# Step 3: Set Up Project
-
-Create the Project Directory: "mkdir game-highlight-processor"
-
-"cd game-highlight-processor"
-
-Create the Necessary Files: "touch Dockerfile fetch.py requirements.txt process_one_video.py mediaconvert_process.py run_all.py env.list"
-
-Add code to the files In the CLI enter "nano fetch.py"
-
-In another browser navigate to the GitHub Repo and copy the contents within fetch.py
-
-Reminder to replace with your S3bucket name, your RapidAPI key and region
-
-Exit and Save file
-
-In CLI enter "nano Dockerfile" Paste the code found within the Dockerfile on Github into the blank area Exit and Save file
-
-In CLI enter "nano requirements.txt" Paste the code found within the requirements.txt file on Github into the blank area Exit and Save file
-
-In CLI enter nano "process_one_video.py" Paste the code found within the process_one_video.py file on Github into the blank area 
-
-Reminder to replace your S3bucket name
-
-Exit and Save file
-
-Retrieve MediaConvert Endpoint
-"aws mediaconvert describe-endpoints"
-
-In CLI enter nano "mediaconvert_process.py" Paste the code found within the mediaconvert_process.py file on Github into the blank area 
-
-Reminder to replace your S3bucket name, mediaconvert endpoint & your account ID(above the print portion of the code)
-
-Exit and Save file
-
-In CLI enter nano "run_all.py" Paste the code found within the run_all.py file on Github into the blank area 
-
-Exit and Save file
-
-In CLI enter nano "env.list" Paste the code found within the env.list file on Github into the blank area 
-
-Reminder to replace your access key id and secret access key
-
-Exit and Save file
-
-Secure the env.list file, "chmod 600 env.list"
-
-Add the file to .gitignore to prevent it from being committed to version control
-
-# Step 4: Build and Run the Docker Container
+## **Step 5: Secure .env file**
+```bash
+chmod 600 .env
+```
+## **Step 6: Locally Buikd & Run The Docker Container**
 Run:
-"docker build -t highlight-processor ."
+```bash
+docker build -t highlight-processor .
+```
 
 Run the Docker Container Locally:
-docker run --env-file env.list highlight-processor
+```bash
+docker run --env-file .env highlight-processor
+```
            
 This will run fetch.py, process_one_video.py and mediaconvert_process.py and the following files should be saved in your S3 bucket:
 
 Optional - Confirm there is a video uploaded to s3://<your-bucket-name>/videos/first_video.mp4
 
 Optional - Confirm there is a video uploaded to s3://<your-bucket-name>/processed_videos/
+
+### **What We Learned**
+1. Working with Docker and AWS Services
+2. Identity Access Management (IAM) and least privilege
+3. How to enhance media quality 
+
+### **Future Enhancements**
+1. Using Terraform to enhance the Infrastructure as Code (IaC)
+2. Increasing the amount of videos process and converted with AWS Media Convert
+3. Change the date from static (specific point in time) to dyanmic (now, last 30 days from today's date,etc)
+
+# Part 2 - Terraform Bonus
+Video + Steps will drop on 1/27
+
