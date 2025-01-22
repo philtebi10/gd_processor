@@ -1,6 +1,6 @@
 # terraform.tfvars
 
-ws_region                = "us-east-1"
+aws_region                = "us-east-1"
 project_name             = "highlight-pipeline-final"
 s3_bucket_name           = "my-highlight-bucket-final"
 ecr_repository_name      = "highlight-pipeline2-final"
