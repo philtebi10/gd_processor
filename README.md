@@ -65,6 +65,8 @@ You can check to see if you have an access key in the IAM dashboard
 Under Users, click on a user and then "Security Credentials"
 Scroll down until you see the Access Key section
 You will not be able to retrieve your secret access key so if you don't have that somewhere, you need to create an access key.
+## **Technical Diagram**
+![GameHighlightProcessor](https://github.com/user-attachments/assets/762c3582-c6fe-48b2-b7da-0ff5b86b7970)
 
 ## **Project Structure**
 ```bash
