@@ -8,6 +8,10 @@
 .env
 .env.*  # For example, .env.local, .env.development, etc.
 
+# Ignore terrform variable files 
+*.tfvars
+*.tfvars.json
+
 # ----------------------------
 # Optional: Ignore Other Files
 # ----------------------------
