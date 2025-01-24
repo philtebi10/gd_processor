@@ -16,3 +16,6 @@ rapidapi_ssm_parameter_arn = "arn:aws:ssm:us-east-1:xxxxxxxxxxxx:parameter/mypro
 
 mediaconvert_endpoint     = "https://your_mediaconvert_endpoint_here.amazonaws.com"
 mediaconvert_role_arn     = "" # Leaving the string empty will use the role that is created
+
+retry_count                = 5
+retry_delay                = 60
