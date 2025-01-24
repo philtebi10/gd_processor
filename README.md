@@ -208,8 +208,7 @@ aws ssm put-parameter \
 ```bash
 aws mediaconvert describe-endpoints
 ```
-7. Create an IAM role named MediaConvertRole, the policies are stored in the resources folder of this github repo.
-8. After creating the resources, up date the ARN url
+7. Leave the mediaconvert_role_arn string empty
 
 Helpful Tip for Beginners:
 1. Use the same region, project, S3 Bucketname and ECR Repo name to make following along easier. Certain steps like pushing the docker image to the ECR repo is easier to copy and paste without remember what you named your repo :)
@@ -234,7 +233,7 @@ terraform plan
 ```
 5. Apply changes to the desired state
 ```bash
-terraform apply
+terraform apply -var-file="terraform.dev.tfvars"
 ```
 6.Build the docker image for AWS deployment - ensure you are at the src folder 
 ```bash
@@ -265,4 +264,4 @@ bash ncaaprojectcleanup.sh
 4. SSM for saving secrets and pulling into terraform
 
 ### **Future Enhancements**
-1. Automating the creation of IAM role and VPCs
+1. Automating the creation of VPCs/networking infra, media endpoint
