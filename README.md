@@ -188,5 +188,81 @@ Optional - Confirm there is a video uploaded to s3://<your-bucket-name>/processe
 3. Change the date from static (specific point in time) to dyanmic (now, last 30 days from today's date,etc)
 
 # Part 2 - Terraform Bonus
-Video + Steps will drop on 1/27
 
+### **Setup terraform.tfvars File**
+1. In the github repo, there is a resources folder and copy the entire contents
+2. In the AWS Cloudshell or vs code terminal, create the file vpc_setup.sh and paste the script inside.
+3. Run the script
+```bash
+bash vpc_setup.sh
+```
+4. You will see variables in the output, paste these variables into lines 8-13.
+5. Store your API key in AWS Secrets Manager
+```bash
+aws ssm put-parameter \
+  --name "/myproject/rapidapi_key" \
+  --value "YOUR_SECRET_KEY" \
+  --type SecureString
+```
+6.  Run the following script to obtain your mediaconvert_endpoint:
+```bash
+aws mediaconvert describe-endpoints
+```
+7. Create an IAM role named MediaConvertRole, the policies are stored in the resources folder of this github repo.
+8. After creating the resources, up date the ARN url
+
+Helpful Tip for Beginners:
+1. Use the same region, project, S3 Bucketname and ECR Repo name to make following along easier. Certain steps like pushing the docker image to the ECR repo is easier to copy and paste without remember what you named your repo :)
+
+### **Run The Project**
+1.  Navigate to the terraform folder/workspace in VS Code
+From the src folder
+```bash
+cd terraform
+```
+2. Initialize terraform working directory
+```bash
+terraform init
+```
+3. Check syntax and validity of your Terraform configuration files
+```bash
+terraform validate
+```
+4. Display execution plan for the terraform configuration
+```bash
+terraform plan
+```
+5. Apply changes to the desired state
+```bash
+terraform apply
+```
+6.Build the docker image for AWS deployment - ensure you are at the src folder 
+```bash
+docker build -t highlight-pipeline:latest .
+docker tag highlight-pipeline:latest <AWS_ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/highlight-pipeline:latest
+```
+7.Log into ECR & Push
+```bash
+aws ecr get-login-password --region us-east-1 | \
+  docker login --username AWS --password-stdin <AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com
+
+docker push <AWS_ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/highlight-pipeline:latest
+```
+
+### **Destroy ECS and ECR resources**
+1. In the AWS Cloudshell or vs code terminal, create the file ncaaprojectcleanup.sh and paste the script inside from the resources folder.
+3. Run the script
+```bash
+bash ncaaprojectcleanup.sh
+```
+### **Review Video Files**
+1. Navigate to the S3 Bucket and confirm there is a json video in the highlights folder and a video in the videos folder
+
+### **What We Learned**
+1. Deploying local docker images to ECR 
+2. A high level overview of terraform files
+3. Networking - VPCs, Internet Gateways, private subnets and public subnets
+4. SSM for saving secrets and pulling into terraform
+
+### **Future Enhancements**
+1. Automating the creation of IAM role and VPCs
