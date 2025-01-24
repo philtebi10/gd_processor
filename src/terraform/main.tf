@@ -1,3 +1,5 @@
+# main.tf
+
 terraform {
   required_version = ">= 1.0.0"
   required_providers {
@@ -19,10 +21,7 @@ provider "aws" {
   # }
 }
 
-# We retrieve the caller identity to avoid hard-coding account IDs.
-data "aws_caller_identity" "current" {}
-
-# Optional local reference for your AWS account ID (if you need it).
+# Optional local reference for your AWS account ID
 locals {
   current_account_id = data.aws_caller_identity.current.account_id
 }
